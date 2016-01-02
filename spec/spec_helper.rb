@@ -10,7 +10,7 @@ require_relative "support/context/consumer_ecosystem"
 require_relative "support/context/item_ecosystem"
 
 RSpec.configure do |let|
-  let.before("suite") do
+  let.before(:suite) do
     CodeClimate::TestReporter.start
   end
 

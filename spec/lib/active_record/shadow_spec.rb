@@ -1,6 +1,6 @@
 require "spec_helper"
 
-RSpec.describe ActiveRecord::Shadow do
+RSpec.describe(ActiveRecord::Shadow) do
   include_context "cart ecosystem"
   include_context "consumer ecosystem"
   include_context "item ecosystem"
