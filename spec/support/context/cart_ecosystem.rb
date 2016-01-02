@@ -46,7 +46,7 @@ RSpec.shared_context "cart ecosystem" do
 
     end
 
-    class CartsShadow < Activerecord::Shadow::Collection
+    class CartsShadow < ActiveRecord::Shadow::Collection
 
       filter :default, Spec::CartShadow
       filter :completed, Spec::CartShadow
