@@ -3,6 +3,7 @@ require "pry"
 require "rspec"
 require "active_record-shadow"
 
+require_relative "support/eager"
 require_relative "support/active_model/validations"
 require_relative "support/context/cart_ecosystem"
 require_relative "support/context/consumer_ecosystem"
