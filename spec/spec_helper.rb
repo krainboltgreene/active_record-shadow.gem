@@ -18,6 +18,36 @@ RSpec.configure do |let|
     ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
   end
 
+  let.before(:each) do
+    ActiveRecord::Migration.create_table(:items, force: true) do |table|
+      table.integer :subtotal_cents, default: 0, null: false
+      table.integer :discount_cents, default: 0, null: false
+      table.integer :cart_id, null: false
+      table.text :metadata, default: "{}"
+      table.timestamps null: false
+    end
+  end
+
+  let.before(:each) do
+    ActiveRecord::Migration.create_table(:carts, force: true) do |table|
+      table.integer :discount_cents, default: 0, null: false
+      table.string :state, null: false
+      table.string :status, null: false, default: :started
+      table.integer :consumer_id, null: false
+      table.text :metadata, default: "{}"
+      table.timestamps null: false
+    end
+  end
+
+  let.before(:each) do
+    ActiveRecord::Migration.create_table(:consumers, force: true) do |table|
+      table.string :email, default: 0, null: false
+      table.integer :credit_cents, default: 0, null: false
+      table.text :metadata, default: "{}"
+      table.timestamps null: false
+    end
+  end
+
   let.around(:each) do |example|
     ActiveRecord::Base.transaction do
       example.run

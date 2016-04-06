@@ -9,23 +9,31 @@ RSpec.shared_context "item ecosystem" do
 
       belongs_to :cart, class_name: Spec::Cart
 
+      scope :premium, -> { where(subtotal_cents: 100_00) }
+
       def total_cents
         subtotal_cents + discount_cents
       end
+
     end
 
     class ItemShadow < ActiveRecord::Shadow::Member
-      shadow Spec::Item
 
       related :cart, Spec::CartShadow
 
       static :subtotal_cents
       static :discount_cents
+
       computed :total_cents
+
     end
 
     class ItemsShadow < ActiveRecord::Shadow::Collection
-      filter :default, Spec::ItemShadow
+
+      shadow Spec::ItemShadow
+
+      filter :premium, Spec::ItemShadow
+
     end
   end
 
@@ -43,8 +51,13 @@ RSpec.shared_context "item ecosystem" do
 
   let(:_item_attributes) do
     {
-      subtotal_cents: 20_00,
-      cart: _cart
+      subtotal_cents: 20_00
+    }
+  end
+
+  let(:_item_premium_attributes) do
+    {
+      subtotal_cents: 100_00
     }
   end
 
@@ -52,13 +65,15 @@ RSpec.shared_context "item ecosystem" do
     _item_class.new(_item_attributes)
   end
 
+  let(:_item_premium) do
+    _item_class.new(_item_premium_attributes)
+  end
+
+  let(:_items) do
+    [_item, _item_premium]
+  end
+
   before(:each) do
-    ActiveRecord::Migration.create_table(:items, force: true) do |table|
-      table.integer :subtotal_cents, default: 0, null: false
-      table.integer :discount_cents, default: 0, null: false
-      table.integer :cart_id, null: false
-      table.text :metadata, default: "{}"
-      table.timestamps null: false
-    end
+    _item.cart = _cart
   end
 end

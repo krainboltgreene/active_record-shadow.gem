@@ -1,6 +1,11 @@
 RSpec.shared_context "cart ecosystem" do
   module Spec
     class Cart < ActiveRecord::Base
+      TAX = 0.02
+      SHIPPING = {
+        "Nowhere" => 5_00
+      }
+
       self.table_name = :carts
 
       serialize :metadata, JSON
@@ -8,6 +13,7 @@ RSpec.shared_context "cart ecosystem" do
       scope :completed, -> { where(status: :completed) }
 
       has_many :items, class_name: Spec::Item
+      belongs_to :consumer, class_name: Spec::Consumer
 
       def tax_cents
         subtotal_cents * TAX
@@ -32,12 +38,11 @@ RSpec.shared_context "cart ecosystem" do
 
     class CartShadow < ActiveRecord::Shadow::Member
 
-      shadow Spec::Cart
-
       related :consumer, Spec::ConsumerShadow
       related :items, Spec::ItemsShadow
 
       static :discount_cents
+
       computed :subtotal_cents
       computed :subdiscount_cents
       computed :shipping_cents
@@ -48,7 +53,8 @@ RSpec.shared_context "cart ecosystem" do
 
     class CartsShadow < ActiveRecord::Shadow::Collection
 
-      filter :default, Spec::CartShadow
+      shadow Spec::CartShadow
+
       filter :completed, Spec::CartShadow
     end
   end
@@ -67,9 +73,7 @@ RSpec.shared_context "cart ecosystem" do
 
   let(:_cart_attributes) do
     {
-      state: "Nowhere",
-      consumer: _consumer,
-      items: _items
+      state: "Nowhere"
     }
   end
 
@@ -77,14 +81,12 @@ RSpec.shared_context "cart ecosystem" do
     _cart_class.new(_cart_attributes)
   end
 
+  let(:_carts) do
+    [_cart]
+  end
+
   before(:each) do
-    ActiveRecord::Migration.create_table(:carts, force: true) do |table|
-      table.integer :discount_cents, default: 0, null: false
-      table.string :state, null: false
-      table.string :status, null: false, default: :started
-      table.integer :consumer_id, null: false
-      table.text :metadata, default: "{}"
-      table.timestamps null: false
-    end
+    _cart.consumer = _consumer
+    _cart.items = _items
   end
 end

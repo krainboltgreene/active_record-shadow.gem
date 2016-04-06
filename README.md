@@ -75,8 +75,6 @@ Before we start soft applying we need to create the `ActiveRecord::Shadow` objec
 # This class represents a singular record
 class CartShadow < ActiveRecord::Shadow::Member
 
-  shadow Cart
-
   # This tells Shadow that these values are nodes on the graph
   related :items, ItemsShadow
   related :consumer, ConsumerShadow
@@ -86,8 +84,9 @@ class CartShadow < ActiveRecord::Shadow::Member
 
   # This tells Shadow to "implement" to run the method in the context of the shadow
   # This is useful for methods that require other shadowed values
-  dynamic :subtotal_cents
-  dynamic :total_cents
+  computed :subtotal_cents
+  computed :subdiscount_cents
+  computed :total_cents
 
   # These properties will be blackholes for changes, even relationships
   ignore :shipping_cents
@@ -98,18 +97,15 @@ end
 # This class represents a collection of records
 class ItemsShadow < ActiveRecord::Shadow::Collection
 
-  shadow Item
-
   # Filter properties are layers over scopes or singleton methods
   # In ActiveRecord this prevents unintelligently destroying the in memory representation
-  filter :default, ItemShadow
+  default ItemShadow
+
   filter :on_sale, ItemShadow
 end
 
 # ./app/shadows/item_shadow.rb
 class ItemShadow < ActiveRecord::Shadow::Member
-
-  shadow Item
 
   relation :cart, CartShadow
 

@@ -11,14 +11,13 @@ RSpec.shared_context "consumer ecosystem" do
 
     class ConsumerShadow < ActiveRecord::Shadow::Member
 
-      shadow Spec::Consumer
-
       related :carts, Spec::CartsShadow
 
       static :metadata
       static :credit_cents
 
       ignore :email
+
     end
   end
 
@@ -32,8 +31,7 @@ RSpec.shared_context "consumer ecosystem" do
 
   let(:_consumer_attributes) do
     {
-      email: "casper@example.com",
-      carts: _carts
+      email: "casper@example.com"
     }
   end
 
@@ -42,11 +40,6 @@ RSpec.shared_context "consumer ecosystem" do
   end
 
   before(:each) do
-    ActiveRecord::Migration.create_table(:consumers, force: true) do |table|
-      table.string :email, default: 0, null: false
-      table.integer :credit_cents, default: 0, null: false
-      table.text :metadata, default: "{}"
-      table.timestamps null: false
-    end
+    _consumer.carts = _carts
   end
 end
